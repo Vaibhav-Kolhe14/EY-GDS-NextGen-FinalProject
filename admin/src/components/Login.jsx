@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
 import axios from 'axios'
+import { toast } from 'react-toastify'
 
-function Login() {
+function Login({setToken}) {
 
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
@@ -10,9 +11,15 @@ function Login() {
         try {
             e.preventDefault();
             const response = await axios.post(`${import.meta.env.VITE_SERVER_URL}/api/user/admin`, {email, password})
-
+            // console.log(response)
+            if(response.data.success) {
+                setToken(response.data.token)
+            } else {
+                toast.error(response.data.message)
+            }
         } catch (error) {
-            
+            console.log('Error in onSubmitHandler in Login.jsx :: ', error)
+            toast.error(error.message)
         }
     }
 

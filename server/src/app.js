@@ -3,6 +3,7 @@ const cors = require('cors')
 
 const userRouter = require('./routes/userRoutes.js')
 const productRouter = require('./routes/productRoutes.js')
+const cartRouter = require('./routes/cartRoutes.js')
 
 const app = express()
 
@@ -17,6 +18,7 @@ app.use(express.urlencoded({extended: true, limit: '16kb'}))
 
 app.use('/api/user', userRouter)
 app.use('/api/product', productRouter)
+app.use('/api/cart', cartRouter)
 
 app.get('/', (req, res) => {
     res.status(200).json('success')

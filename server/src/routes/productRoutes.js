@@ -21,6 +21,6 @@ router.route("/add").post(adminAUTH,
 );
 router.route("/remove").post(adminAUTH, removeProduct);
 router.route("/single").post(adminAUTH, singleProduct);
-router.route("/list").get(adminAUTH, listProducts);
+router.route("/list").get(listProducts);
 
 module.exports = router;

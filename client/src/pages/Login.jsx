@@ -1,11 +1,63 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
+import { ShopContext } from "../context/ShopContext";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 function Login() {
+
   const [currentState, setCurrentState] = useState("Sign Up");
+  const {token, setToken, navigate} = useContext(ShopContext)
+
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
+    try {
+      if(currentState === 'Sign Up') {
+        const response = await axios.post(`${import.meta.env.VITE_SERVER_URL}/api/user/register`, {name, email, password})
+        if(response.data.success) {
+          setToken(response.data.token)
+          localStorage.setItem('token', response.data.token)
+          toast.success('User registered successfully')
+          setName('')
+          setEmail('')
+          setPassword('')
+        } else {
+          console.log('Error in signup user')
+          toast.error(response.data.message)
+        }
+      } else {
+        const response = await axios.post(`${import.meta.env.VITE_SERVER_URL}/api/user/login`, {email, password})
+        if(response.data.success) {
+          setToken(response.data.token)
+          localStorage.setItem('token', response.data.token)
+          toast.success('User login successfully')
+          setEmail('')
+          setPassword('')
+        } else {
+          console.log('Error in login user')
+          toast.error(response.data.message)
+        }
+      }
+    } catch (error) {
+      console.log('Error in onSubmitHandler in login jsx :: ', error)
+      toast.error(error.message)
+    }
   };
+
+  useEffect(()=> {
+    if(token) {
+      navigate('/')
+    }
+  }, [token])
+
+  useEffect(()=>{
+    if(!token && localStorage.getItem('token')) {
+      setToken(localStorage.getItem('token'))
+    }
+  }, [])
 
   return (
     <form
@@ -20,6 +72,8 @@ function Login() {
         ""
       ) : (
         <input
+        onChange={(e)=>setName(e.target.value)}
+        value={name}
           type="text"
           className="w-full px-3 py-2 border border-gray-800"
           placeholder="Name"
@@ -27,12 +81,16 @@ function Login() {
         />
       )}
       <input
+      onChange={(e)=>setEmail(e.target.value)}
+      value={email}
         type="email"
         className="w-full px-3 py-2 border border-gray-800"
         placeholder="Email"
         required
       />
       <input
+      onChange={(e)=>setPassword(e.target.value)}
+      value={password}
         type="password"
         className="w-full px-3 py-2 border border-gray-800"
         placeholder="Password"
