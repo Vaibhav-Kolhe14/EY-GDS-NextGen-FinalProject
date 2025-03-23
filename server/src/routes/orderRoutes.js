@@ -5,6 +5,8 @@ const {
   allOrders,
   userOrders,
   updateStatus,
+  verifyStripe,
+  verifyRazorpay
 } = require("../controllers/orderController.js");
 const { Router } = require("express");
 const adminAUTH = require("../middlewares/adminAUTH.js");
@@ -20,5 +22,8 @@ router.route("/stripe").post(authUser, placeOrderStripe);
 router.route("/razorpay").post(authUser, placeOrderRazorpay);
 
 router.route("/userorders").post(authUser, userOrders);
+
+router.route('/verifystripe').post(authUser, verifyStripe)
+router.route('/verifyrazorpay').post(authUser, verifyRazorpay)
 
 module.exports = router;

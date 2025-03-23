@@ -29,6 +29,33 @@ function PlaceOrder() {
     setFormData((data) => ({ ...data, [name]: value }));
   };
 
+  const initPay = (order) => {
+    const options = {
+      key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+      amount: order.amount,
+      currency: order.currency,
+      name: 'Order Payment',
+      description: 'Order Payment',
+      order_id: order.id,
+      receipt: order.receipt,
+      handler: async(response) => {
+        // console.log('\nresponse in initpay options object from client placeorder :', response)
+        try {
+          const {data} = await axios.post(`${import.meta.env.VITE_SERVER_URL}/api/order/verifyrazorpay`, response, {headers: {token}})
+          if(data.success) {
+            navigate('/orders')
+            setCartItems({})
+          }
+        } catch (error) {
+          console.log("\nError in initpay handler from client's placeorder :", error)
+          toast.error(error.message)
+        }
+      }
+    }
+    const rzp = new window.Razorpay(options)
+    rzp.open()
+  }
+
   const onSubmitHandler = async(e) => {
     e.preventDefault()
     try {
@@ -65,6 +92,25 @@ function PlaceOrder() {
             toast.error(response.data.message)
           }
           break;
+
+          case 'stripe':
+            const responseStripe = await axios.post(`${import.meta.env.VITE_SERVER_URL}/api/order/stripe`, orderData, {headers: {token}})
+            if(responseStripe.data.success) {
+              const {session_url} = responseStripe.data
+              window.location.replace(session_url)
+            } else {
+              toast.error(responseStripe.data.message)
+            }
+
+            break
+
+          case 'razorpay':
+            const responseRazorpay = await axios.post(`${import.meta.env.VITE_SERVER_URL}/api/order/razorpay`, orderData, {headers: {token}})
+            if(responseRazorpay.data.success) {
+              // console.log("\nresponse from razorpayPayment api :",responseRazorpay.data.order)
+              initPay(responseRazorpay.data.order)
+            }
+            break
         default:
           break
       }
