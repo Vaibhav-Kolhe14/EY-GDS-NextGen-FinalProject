@@ -13,6 +13,7 @@ const ShopContextProvider = (props) => {
     const [showSearch, setShowSearch] = useState(false)
     const [cartItems, setCartItems] = useState({})
     const [products, setProducts] = useState([])
+    // const [token, setToken] = useState('');
     const [token, setToken] = useState(localStorage.getItem('token') || '');
     const navigate = useNavigate()
 
@@ -38,6 +39,16 @@ const ShopContextProvider = (props) => {
         }
 
         setCartItems(cartData)
+
+        if(token) {
+            try {
+                const response = await axios.post(`${import.meta.env.VITE_SERVER_URL}/api/cart/add`, {itemId, size}, {headers: {token}})
+                console.log('\nResponse from addTocart controller :', response.data)
+            } catch (error) {
+                console.log('Error in addToCart context jsx :: ', error)
+                toast.error(error.message)
+            }
+        }
     }
 
 
@@ -62,6 +73,16 @@ const ShopContextProvider = (props) => {
         cartData[itemId][size] = quantity;
 
         setCartItems(cartData)
+
+        if(token) {
+            try {
+                const response = await axios.post(`${import.meta.env.VITE_SERVER_URL}/api/cart/update`, {itemId, size, quantity}, {headers: {token}})
+                console.log('\nResponse from updateCart controller :', response.data)
+            } catch (error) {
+                console.log('Error in updateCart context jsx :: ', error)
+                toast.error(error.message)
+            }
+        }
     }
 
     const getCartAmount = () => {
@@ -100,9 +121,39 @@ const ShopContextProvider = (props) => {
         }
     }
 
+    const  getUserCart = async(token) => {
+        try {
+            const response = await axios.post(`${import.meta.env.VITE_SERVER_URL}/api/cart/get`, {}, {headers: {token}})
+
+            // console.log('Response from getUserCart context :', response.data)
+
+            if(response.data.success) {
+                setCartItems(response.data.cartData)
+            }
+        } catch (error) {
+            console.log('Error in getUserCart context :: ', error)
+            toast.error(error.message)
+        }
+    }
+
     useEffect(()=>{
         getProductsData()
     }, [])
+
+    useEffect(() => {
+        const storedToken = localStorage.getItem('token');
+        if (!token && storedToken) {
+            // console.log("Setting token from localStorage");
+            setToken(storedToken);
+        }
+    }, []);
+    
+    useEffect(() => {
+        if (token) {
+            // console.log("Fetching user cart with token:", token);
+            getUserCart(token);
+        }
+    }, [token]); 
 
     const value = {
         products,
