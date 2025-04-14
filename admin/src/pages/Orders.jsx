@@ -59,7 +59,7 @@ function Orders({ token }) {
             <div>
               <div>
                 {order.items.map((item, index) => {
-                  if (index === order.items.length - 1) {
+                  if (index === order.items.length - 1) {  //Arrays are 0based so final to get final element
                     return (
                       <p className="py-0.5" key={index}>
                         {item.name} x {item.quantity} <span>{item.size}</span>

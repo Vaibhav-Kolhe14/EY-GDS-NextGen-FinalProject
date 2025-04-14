@@ -25,7 +25,7 @@ const ShopContextProvider = (props) => {
             return;
         }
 
-        let cartData = structuredClone(cartItems);
+        let cartData = structuredClone(cartItems);//creates an independent copy of the cartItems object, so changes to cartData don't affect the original cartItems.
 
         if(cartData[itemId]) {
             if(cartData[itemId][size]) {
